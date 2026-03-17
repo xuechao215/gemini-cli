@@ -182,12 +182,13 @@ gemini
 **Benefits:**
 
 - **Free tier**: 1000 requests/day with Gemini 3 (mix of flash and pro)
-- **Model selection**: Choose specific Gemini models
-- **Usage-based billing**: Upgrade for higher limits when needed
+- **Paid tier**: Pay-as-you-go pricing
+- **Model selection**: Choose specific models (e.g., `gemini-3.0-pro`)
+
+#### Set your API key as an environment variable
 
 ```bash
-# Get your key from https://aistudio.google.com/apikey
-export GEMINI_API_KEY="YOUR_API_KEY"
+export GEMINI_API_KEY="your-api-key"
 gemini
 ```
 
@@ -207,6 +208,38 @@ export GOOGLE_API_KEY="YOUR_API_KEY"
 export GOOGLE_GENAI_USE_VERTEXAI=true
 gemini
 ```
+
+### Option 4: OpenAI Compatible API
+
+**✨ Best for:** Developers who want to use local models (like Ollama, LM Studio) or other OpenAI-compatible API providers (like DeepSeek, Groq).
+
+**Benefits:**
+
+- **Flexibility**: Use any model that provides an OpenAI-compatible endpoint
+- **Privacy**: Run models entirely locally
+- **Cost control**: Use alternative providers with different pricing models
+
+#### Configure via CLI settings
+
+1. Start Gemini CLI:
+   ```bash
+   gemini
+   ```
+2. Select **OpenAI Compatible API** from the authentication menu.
+3. Enter your API key when prompted (or press Enter to skip if your local model doesn't require one).
+4. Open settings (`/settings`) and configure the `customApi` section:
+   - `customApi.baseUrl`: The API endpoint (e.g., `http://localhost:11434/v1` for Ollama)
+   - `customApi.modelName`: The model to use (e.g., `llama3`)
+   - `customApi.apiKey`: Your API key (if required)
+   - `customApi.temperature`: (Optional) Model temperature
+
+Alternatively, you can set the following environment variables:
+- `OPENAI_BASE_URL`: The API endpoint
+- `OPENAI_MODEL_NAME`: The model to use
+- `OPENAI_API_KEY`: Your API key
+- `OPENAI_TEMPERATURE`: Model temperature
+
+---
 
 For Google Workspace accounts and other authentication methods, see the
 [authentication guide](./docs/get-started/authentication.md).

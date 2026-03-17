@@ -21,6 +21,7 @@ Select the authentication method that matches your situation in the table below:
 | Organization users with a company, school, or Google Workspace account | [Sign in with Google](#login-google)                             | [Yes](#set-gcp)                                             |
 | AI Studio user with a Gemini API key                                   | [Use Gemini API Key](#gemini-api)                                | No                                                          |
 | Google Cloud Vertex AI user                                            | [Vertex AI](#vertex-ai)                                          | [Yes](#set-gcp)                                             |
+| User with local models or OpenAI-compatible API                        | [OpenAI Compatible API](#openai-compatible)                      | No                                                          |
 | [Headless mode](#headless)                                             | [Use Gemini API Key](#gemini-api) or<br> [Vertex AI](#vertex-ai) | No (for Gemini API Key)<br> [Yes](#set-gcp) (for Vertex AI) |
 
 ### What is my Google account type?
@@ -272,6 +273,52 @@ pipelines, or if your organization restricts user-based ADC or API key creation.
 
 5.  Select **Vertex AI**.
 
+## Use OpenAI Compatible API <a id="openai-compatible"></a>
+
+If you want to use local models (like Ollama, LM Studio) or other OpenAI-compatible API providers (like DeepSeek, Groq), you can configure Gemini CLI to use an OpenAI-compatible endpoint.
+
+To authenticate and use Gemini CLI with an OpenAI-compatible API:
+
+1. Start the CLI:
+
+   ```bash
+   gemini
+   ```
+
+2. Select **OpenAI Compatible API** from the authentication menu.
+
+3. Enter your API key when prompted. If your local model doesn't require an API key, you can just press Enter to skip.
+
+4. Open the settings menu by typing `/settings` in the CLI.
+
+5. Navigate to the **Advanced** section and configure the `customApi` settings:
+   - `customApi.baseUrl`: The base URL of your API endpoint (e.g., `http://localhost:11434/v1` for Ollama).
+   - `customApi.modelName`: The name of the model you want to use (e.g., `llama3`).
+   - `customApi.apiKey`: Your API key (if required and not set in step 3).
+   - `customApi.temperature`: (Optional) The temperature setting for the model.
+
+Alternatively, you can set the following environment variables before starting the CLI. Environment variables will take precedence over the settings configured in the CLI:
+
+**macOS/Linux**
+
+```bash
+export OPENAI_BASE_URL="http://localhost:11434/v1"
+export OPENAI_MODEL_NAME="llama3"
+export OPENAI_API_KEY="YOUR_API_KEY"
+export OPENAI_TEMPERATURE="0.7"
+gemini
+```
+
+**Windows (PowerShell)**
+
+```powershell
+$env:OPENAI_BASE_URL="http://localhost:11434/v1"
+$env:OPENAI_MODEL_NAME="llama3"
+$env:OPENAI_API_KEY="YOUR_API_KEY"
+$env:OPENAI_TEMPERATURE="0.7"
+gemini
+```
+
 ## Set your Google Cloud project <a id="set-gcp"></a>
 
 > **Important:** Most individual Google accounts (free and paid) don't require a
@@ -396,6 +443,7 @@ configure authentication using environment variables:
 
 - [Use Gemini API Key](#gemini-api)
 - [Vertex AI](#vertex-ai)
+- [OpenAI Compatible API](#openai-compatible)
 
 ## What's next?
 

@@ -299,6 +299,7 @@ export const DialogManager = ({
           onCancel={uiActions.handleApiKeyCancel}
           error={uiState.authError}
           defaultValue={uiState.apiKeyDefaultValue}
+          authType={settings.merged.security.auth.selectedType}
         />
       </Box>
     );

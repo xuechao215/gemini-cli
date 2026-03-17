@@ -782,6 +782,7 @@ export async function loadCliConfig(
     },
     telemetry: telemetrySettings,
     usageStatisticsEnabled: settings.privacy?.usageStatisticsEnabled,
+    customApi: settings.customApi,
     fileFiltering,
     checkpointing: settings.general?.checkpointing?.enabled,
     proxy:

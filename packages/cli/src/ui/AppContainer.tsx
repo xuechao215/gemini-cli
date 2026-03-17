@@ -816,9 +816,15 @@ Logging in with Google... Restarting Gemini CLI to continue.
           return;
         }
 
-        await saveApiKey(apiKey);
-        await reloadApiKey();
-        await config.refreshAuth(AuthType.USE_GEMINI);
+        const authType = settings.merged.security.auth.selectedType;
+        if (authType === AuthType.OPENAI_COMPATIBLE) {
+          settings.setValue(SettingScope.User, 'customApi.apiKey', apiKey);
+          await config.refreshAuth(AuthType.OPENAI_COMPATIBLE);
+        } else {
+          await saveApiKey(apiKey);
+          await reloadApiKey();
+          await config.refreshAuth(AuthType.USE_GEMINI);
+        }
         setAuthState(AuthState.Authenticated);
       } catch (e) {
         onAuthError(
@@ -826,7 +832,7 @@ Logging in with Google... Restarting Gemini CLI to continue.
         );
       }
     },
-    [setAuthState, onAuthError, reloadApiKey, config],
+    [setAuthState, onAuthError, reloadApiKey, config, settings],
   );
 
   const handleApiKeyCancel = useCallback(() => {
@@ -861,7 +867,10 @@ Logging in with Google... Restarting Gemini CLI to continue.
       // We skip validation for Gemini API key here because it might be stored
       // in the keychain, which we can't check synchronously.
       // The useAuth hook handles validation for this case.
-      if (settings.merged.security.auth.selectedType === AuthType.USE_GEMINI) {
+      if (
+        settings.merged.security.auth.selectedType === AuthType.USE_GEMINI ||
+        settings.merged.security.auth.selectedType === AuthType.OPENAI_COMPATIBLE
+      ) {
         return;
       }
 

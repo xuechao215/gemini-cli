@@ -111,6 +111,17 @@ export const useAuthCommand = (
         }
       }
 
+      if (authType === AuthType.OPENAI_COMPATIBLE) {
+        const customApiConfig = config.getCustomApi();
+        // For OpenAI compatible APIs, API key might be optional (e.g. local models)
+        // We don't strictly require it here, but we can check if it's completely missing
+        // and prompt the user. If they just press enter, it will be saved as empty string.
+        if (customApiConfig?.apiKey === undefined && !process.env['OPENAI_API_KEY']) {
+          setAuthState(AuthState.AwaitingApiKeyInput);
+          return;
+        }
+      }
+
       const error = validateAuthMethodWithSettings(authType, settings);
       if (error) {
         onAuthError(error);

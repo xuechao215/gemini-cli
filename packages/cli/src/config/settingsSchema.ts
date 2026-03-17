@@ -1721,6 +1721,54 @@ const SETTINGS_SCHEMA = {
     },
   },
 
+  customApi: {
+    type: 'object',
+    label: 'Custom API',
+    category: 'Advanced',
+    requiresRestart: true,
+    default: {},
+    description: 'Configuration for custom OpenAI-compatible APIs.',
+    showInDialog: true,
+    properties: {
+      baseUrl: {
+        type: 'string',
+        label: 'Base URL',
+        category: 'Advanced',
+        requiresRestart: true,
+        default: undefined as string | undefined,
+        description: 'The base URL for the custom API.',
+        showInDialog: true,
+      },
+      modelName: {
+        type: 'string',
+        label: 'Model Name',
+        category: 'Advanced',
+        requiresRestart: true,
+        default: undefined as string | undefined,
+        description: 'The model name to use for the custom API.',
+        showInDialog: true,
+      },
+      apiKey: {
+        type: 'string',
+        label: 'API Key',
+        category: 'Advanced',
+        requiresRestart: true,
+        default: undefined as string | undefined,
+        description: 'The API key for the custom API.',
+        showInDialog: true,
+      },
+      temperature: {
+        type: 'number',
+        label: 'Temperature',
+        category: 'Advanced',
+        requiresRestart: true,
+        default: undefined as number | undefined,
+        description: 'The temperature to use for the custom API.',
+        showInDialog: true,
+      },
+    },
+  },
+
   advanced: {
     type: 'object',
     label: 'Advanced',
@@ -1838,9 +1886,8 @@ const SETTINGS_SCHEMA = {
         label: 'Enable Agents',
         category: 'Experimental',
         requiresRestart: true,
-        default: false,
-        description:
-          'Enable local and remote subagents. Warning: Experimental feature, uses YOLO mode for subagents',
+        default: true,
+        description: 'Enable local and remote subagents.',
         showInDialog: false,
       },
       extensionManagement: {

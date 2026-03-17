@@ -75,6 +75,11 @@ export function AuthDialog({
       value: AuthType.USE_VERTEX_AI,
       key: AuthType.USE_VERTEX_AI,
     },
+    {
+      label: 'OpenAI Compatible API',
+      value: AuthType.OPENAI_COMPATIBLE,
+      key: AuthType.OPENAI_COMPATIBLE,
+    },
   ];
 
   if (settings.merged.security.auth.enforcedType) {
@@ -144,6 +149,14 @@ export function AuthDialog({
             setAuthState(AuthState.AwaitingApiKeyInput);
             return;
           }
+        }
+
+        if (authType === AuthType.OPENAI_COMPATIBLE) {
+          // We might need a new AuthState for OpenAI compatible API key input,
+          // or just use AwaitingApiKeyInput and handle it differently.
+          // For now, let's just set it to Unauthenticated and let the user configure it via settings.
+          setAuthState(AuthState.Unauthenticated);
+          return;
         }
       }
       setAuthState(AuthState.Unauthenticated);

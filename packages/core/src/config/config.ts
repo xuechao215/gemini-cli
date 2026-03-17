@@ -643,6 +643,12 @@ export interface ConfigParameters {
   billing?: {
     overageStrategy?: OverageStrategy;
   };
+  customApi?: {
+    baseUrl?: string;
+    modelName?: string;
+    apiKey?: string;
+    temperature?: number;
+  };
 }
 
 export class Config implements McpContext, AgentLoopContext {
@@ -693,6 +699,12 @@ export class Config implements McpContext, AgentLoopContext {
   private readonly accessibility: AccessibilitySettings;
   private readonly telemetrySettings: TelemetrySettings;
   private readonly usageStatisticsEnabled: boolean;
+  private readonly customApi?: {
+    baseUrl?: string;
+    modelName?: string;
+    apiKey?: string;
+    temperature?: number;
+  };
   private _geminiClient!: GeminiClient;
   private readonly _sandboxManager: SandboxManager;
   private baseLlmClient!: BaseLlmClient;
@@ -919,6 +931,7 @@ export class Config implements McpContext, AgentLoopContext {
       useCliAuth: params.telemetry?.useCliAuth,
     };
     this.usageStatisticsEnabled = params.usageStatisticsEnabled ?? true;
+    this.customApi = params.customApi;
 
     this.fileFiltering = {
       respectGitIgnore:
@@ -948,7 +961,7 @@ export class Config implements McpContext, AgentLoopContext {
     this.model = params.model;
     this.disableLoopDetection = params.disableLoopDetection ?? false;
     this._activeModel = params.model;
-    this.enableAgents = params.enableAgents ?? false;
+    this.enableAgents = params.enableAgents ?? true;
     this.agents = params.agents ?? {};
     this.disableLLMCorrection = params.disableLLMCorrection ?? true;
     this.planEnabled = params.plan ?? true;
@@ -2417,6 +2430,15 @@ export class Config implements McpContext, AgentLoopContext {
     return this.usageStatisticsEnabled;
   }
 
+  getCustomApi(): {
+    baseUrl?: string;
+    modelName?: string;
+    apiKey?: string;
+    temperature?: number;
+  } | undefined {
+    return this.customApi;
+  }
+
   getAcpMode(): boolean {
     return this.acpMode;
   }
@@ -3147,22 +3169,23 @@ export class Config implements McpContext, AgentLoopContext {
    */
   private registerSubAgentTools(registry: ToolRegistry): void {
     const agentsOverrides = this.getAgentsSettings().overrides ?? {};
-    if (
-      this.isAgentsEnabled() ||
-      agentsOverrides['codebase_investigator']?.enabled !== false ||
-      agentsOverrides['cli_help']?.enabled !== false
-    ) {
-      const definitions = this.agentRegistry.getAllDefinitions();
+    const definitions = this.agentRegistry.getAllDefinitions();
 
-      for (const definition of definitions) {
-        try {
-          const tool = new SubagentTool(definition, this, this.messageBus);
-          registry.registerTool(tool);
-        } catch (e: unknown) {
-          debugLogger.warn(
-            `Failed to register tool for agent ${definition.name}: ${getErrorMessage(e)}`,
-          );
+    for (const definition of definitions) {
+      try {
+        if (
+          !this.isAgentsEnabled() ||
+          agentsOverrides[definition.name]?.enabled === false
+        ) {
+          continue;
         }
+
+        const tool = new SubagentTool(definition, this, this.messageBus);
+        registry.registerTool(tool);
+      } catch (e: unknown) {
+        debugLogger.warn(
+          `Failed to register tool for agent ${definition.name}: ${getErrorMessage(e)}`,
+        );
       }
     }
   }

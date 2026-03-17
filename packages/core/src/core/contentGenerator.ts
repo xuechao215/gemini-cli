@@ -24,6 +24,7 @@ import { FakeContentGenerator } from './fakeContentGenerator.js';
 import { parseCustomHeaders } from '../utils/customHeaderUtils.js';
 import { determineSurface } from '../utils/surface.js';
 import { RecordingContentGenerator } from './recordingContentGenerator.js';
+import { OpenAIContentGenerator } from './openaiContentGenerator.js';
 import { getVersion, resolveModel } from '../../index.js';
 import type { LlmRole } from '../telemetry/llmRole.js';
 
@@ -61,6 +62,7 @@ export enum AuthType {
   LEGACY_CLOUD_SHELL = 'cloud-shell',
   COMPUTE_ADC = 'compute-default-credentials',
   GATEWAY = 'gateway',
+  OPENAI_COMPATIBLE = 'openai-compatible',
 }
 
 /**
@@ -260,6 +262,23 @@ export async function createContentGenerator(
       });
       return new LoggingContentGenerator(googleGenAI.models, gcConfig);
     }
+
+    if (config.authType === AuthType.OPENAI_COMPATIBLE) {
+      const customApiConfig = gcConfig.getCustomApi();
+      const baseUrl = process.env['OPENAI_BASE_URL'] || customApiConfig?.baseUrl || 'https://api.openai.com/v1';
+      const modelName = process.env['OPENAI_MODEL_NAME'] || customApiConfig?.modelName || 'gpt-4o';
+      const apiKey = process.env['OPENAI_API_KEY'] || customApiConfig?.apiKey || '';
+      const temperature = process.env['OPENAI_TEMPERATURE'] ? parseFloat(process.env['OPENAI_TEMPERATURE']) : customApiConfig?.temperature;
+
+      const openaiGenerator = new OpenAIContentGenerator(
+        baseUrl,
+        modelName,
+        apiKey,
+        temperature
+      );
+      return new LoggingContentGenerator(openaiGenerator, gcConfig);
+    }
+
     throw new Error(
       `Error creating contentGenerator: Unsupported authType: ${config.authType}`,
     );

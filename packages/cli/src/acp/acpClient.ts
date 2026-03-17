@@ -146,6 +146,11 @@ export class GeminiAgent {
           },
         },
       },
+      {
+        id: AuthType.OPENAI_COMPATIBLE,
+        name: 'OpenAI Compatible API',
+        description: 'Use an OpenAI compatible API',
+      },
     ];
 
     await this.config.initialize();

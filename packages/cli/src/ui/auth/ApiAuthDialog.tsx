@@ -17,10 +17,12 @@ import { Command } from '../key/keyMatchers.js';
 import { useKeyMatchers } from '../hooks/useKeyMatchers.js';
 
 interface ApiAuthDialogProps {
+  key?: string | number;
   onSubmit: (apiKey: string) => void;
   onCancel: () => void;
   error?: string | null;
   defaultValue?: string;
+  authType?: string;
 }
 
 export function ApiAuthDialog({
@@ -28,6 +30,7 @@ export function ApiAuthDialog({
   onCancel,
   error,
   defaultValue = '',
+  authType = 'gemini-api-key',
 }: ApiAuthDialogProps): React.JSX.Element {
   const keyMatchers = useKeyMatchers();
   const { terminalWidth } = useUIState();
@@ -106,19 +109,22 @@ export function ApiAuthDialog({
       width="100%"
     >
       <Text bold color={theme.text.primary}>
-        Enter Gemini API Key
+        {authType === 'openai-compatible' ? 'Enter Custom API Key' : 'Enter Gemini API Key'}
       </Text>
       <Box marginTop={1} flexDirection="column">
         <Text color={theme.text.primary}>
-          Please enter your Gemini API key. It will be securely stored in your
-          system keychain.
+          {authType === 'openai-compatible' 
+            ? 'Please enter your custom API key. It will be stored in your settings.'
+            : 'Please enter your Gemini API key. It will be securely stored in your system keychain.'}
         </Text>
-        <Text color={theme.text.secondary}>
-          You can get an API key from{' '}
-          <Text color={theme.text.link}>
-            https://aistudio.google.com/app/apikey
+        {authType !== 'openai-compatible' && (
+          <Text color={theme.text.secondary}>
+            You can get an API key from{' '}
+            <Text color={theme.text.link}>
+              https://aistudio.google.com/app/apikey
+            </Text>
           </Text>
-        </Text>
+        )}
       </Box>
       <Box marginTop={1} flexDirection="row">
         <Box
