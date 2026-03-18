@@ -179,9 +179,42 @@ export class OpenAIContentGenerator implements ContentGenerator {
   }
 
   async countTokens(
-    _request: CountTokensParameters,
+    request: CountTokensParameters,
   ): Promise<CountTokensResponse> {
-    return { totalTokens: 0 };
+    // Basic estimation: 1 token ~= 4 characters for English text
+    let totalCharacters = 0;
+    if (request.contents) {
+      const contentsArray = Array.isArray(request.contents)
+        ? request.contents
+        : [request.contents];
+      for (const content of contentsArray) {
+        if (typeof content === 'string') {
+          totalCharacters += content.length;
+        } else if (
+          content &&
+          typeof content === 'object' &&
+          'parts' in content
+        ) {
+          const partsArray = Array.isArray(content.parts)
+            ? content.parts
+            : [content.parts];
+          for (const part of partsArray) {
+            const p = part as unknown;
+            if (typeof p === 'string') {
+              totalCharacters += p.length;
+            } else if (
+              p &&
+              typeof p === 'object' &&
+              'text' in p &&
+              typeof (p as { text: unknown }).text === 'string'
+            ) {
+              totalCharacters += (p as { text: string }).text.length;
+            }
+          }
+        }
+      }
+    }
+    return { totalTokens: Math.ceil(totalCharacters / 4) };
   }
 
   async embedContent(
@@ -345,6 +378,28 @@ export class OpenAIContentGenerator implements ContentGenerator {
 
     if (this.temperature !== undefined) {
       openaiRequest['temperature'] = this.temperature;
+    }
+
+    // Map generation config
+    if (request.config) {
+      if (request.config.maxOutputTokens !== undefined) {
+        openaiRequest['max_tokens'] = request.config.maxOutputTokens;
+      }
+      if (request.config.temperature !== undefined) {
+        openaiRequest['temperature'] = request.config.temperature;
+      }
+      if (request.config.topP !== undefined) {
+        openaiRequest['top_p'] = request.config.topP;
+      }
+      if (request.config.stopSequences !== undefined) {
+        openaiRequest['stop'] = request.config.stopSequences;
+      }
+      if (request.config.frequencyPenalty !== undefined) {
+        openaiRequest['frequency_penalty'] = request.config.frequencyPenalty;
+      }
+      if (request.config.presencePenalty !== undefined) {
+        openaiRequest['presence_penalty'] = request.config.presencePenalty;
+      }
     }
 
     if (request.config?.tools) {
